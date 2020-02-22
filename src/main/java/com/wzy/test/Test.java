@@ -51,11 +51,11 @@ public class Test {
 //        System.out.println(us.getUserByUserName("test2"));
 //        System.out.println(us.getUserByUserName("123"));
 //        System.out.println("==================");
-        System.out.println(us.userLogin(user2));
-        System.out.println(us.userLogin(user1));
+//        System.out.println(us.userLogin(user2));
+//        System.out.println(us.userLogin(user1));
 //        System.out.println(us.userLogin(user3));
 
-//        us.userRegister(user1);
+        us.userRegister(user1);
 
 
     }

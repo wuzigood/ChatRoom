@@ -33,7 +33,6 @@ public interface IUserDao {
 
     //用户注册
     @Insert("insert into user(username,password,register_date) values(#{userName},#{password},#{registerDate});")
-    @ResultMap(value = {"userMap"})
     void userRegister(User user);
 
 }
