@@ -11,12 +11,12 @@
     <%
         pageContext.setAttribute("APP_PATH", request.getContextPath());
     %>
-    <title>LOGIN</title>
     <link href="${APP_PATH}/static/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
     <script src="${APP_PATH}/static/js/jquery-3.1.1.js"></script>
     <!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
     <script src="${APP_PATH}/static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    <title>LOGIN</title>
     <script type="text/javascript">
         function validateForm() {
             var un = document.getElementById("myUsername").value;
@@ -37,6 +37,7 @@
                 var text = "";
                 document.getElementById("no_password").innerHTML = text;
             }
+            return true;
         }
     </script>
 </head>
@@ -57,11 +58,17 @@
             <input type="button" value="注册" onclick="location.href='http://localhost:8080/easychatroom_war_exploded/register.jsp'" >
         </div>
     </form>
+    <p id="errorTip"></p>
     <script>
         //取出传回来的参数error并与yes比较
         var isErr ='<%=request.getParameter("error")%>';
+        var tip = document.getElementById("errorTip").value;
         if(isErr=='yes'){
-            alert("登录失败!账号或密码错误");
+            var text = "登录失败!账号或密码错误";
+            document.getElementById("errorTip").innerHTML = text;
+        }else if(isErr=='no'){
+            var text = "注册成功，已自动为你跳转到登录页面";
+            document.getElementById("errorTip").innerHTML = text;
         }
     </script>
 

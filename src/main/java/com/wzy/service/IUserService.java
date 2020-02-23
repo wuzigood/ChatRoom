@@ -12,6 +12,6 @@ public interface IUserService {
     int userLogin(User user);
 
     //用户注册
-    void userRegister(User user);
+    int userRegister(User user);
 
 }

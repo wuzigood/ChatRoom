@@ -45,17 +45,11 @@ public class UserController {
         User user = new User(username,password);
         int result = userService.userLogin(user);
         if(result>0){
-            //放入request域中共享数据
-//            request.setAttribute("username",username);
-//            request.setAttribute("password",password);
-//            return "success";
             response.setStatus(302);
             response.setHeader("location",request.getContextPath()+"/user/success");
-
         }else{
             try {
                 //返回登录页面
-
                 response.sendRedirect(request.getContextPath()+"?error=yes");
             } catch (IOException e) {
                 e.printStackTrace();
@@ -68,13 +62,24 @@ public class UserController {
     //注册
     @RequestMapping(value = "/register",method = RequestMethod.POST)
     public void register(String username,String password,HttpServletRequest request,HttpServletResponse response){
+        System.out.println("访问注册");
         User user = new User();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         user.setUserName(username);
         user.setPassword(password);
         user.setRegisterDate(sdf.format(new Date()));
-        userService.userRegister(user);
-        response.setStatus(302);
-        response.setHeader("location",request.getContextPath());
+        int flag = userService.userRegister(user);
+        if(flag != 0){
+            response.setStatus(302);
+            response.setHeader("location",request.getContextPath()+"/index.jsp?error=no");
+        }else{
+            try {
+                response.sendRedirect(request.getContextPath()+"/register.jsp?error=yes");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
+
 }

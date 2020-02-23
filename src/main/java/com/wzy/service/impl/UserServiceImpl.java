@@ -28,7 +28,16 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public void userRegister(User user) {
-        userDao.userRegister(user);
+    public int userRegister(User user) {
+        //数据库里有就返回非零
+        int flag = userDao.userLogin(user);
+        if(flag != 0){
+            return 0;
+        }else{
+            System.out.println("注册成功");
+            userDao.userRegister(user);
+            return 1;
+        }
+
     }
 }
