@@ -7,8 +7,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import javax.jws.soap.SOAPBinding;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 /*
@@ -27,6 +31,7 @@ public class UserController {
     @RequestMapping("success")
     public String success(){
         return "success";
+
     }
     @RequestMapping("fail")
     public String fail(){
@@ -46,11 +51,30 @@ public class UserController {
 //            return "success";
             response.setStatus(302);
             response.setHeader("location",request.getContextPath()+"/user/success");
+
         }else{
-            response.setStatus(302);
-            response.setHeader("location",request.getContextPath()+"/user/fail");
+            try {
+                //返回登录页面
+
+                response.sendRedirect(request.getContextPath()+"?error=yes");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
         }
 
     }
 
+    //注册
+    @RequestMapping(value = "/register",method = RequestMethod.POST)
+    public void register(String username,String password,HttpServletRequest request,HttpServletResponse response){
+        User user = new User();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        user.setUserName(username);
+        user.setPassword(password);
+        user.setRegisterDate(sdf.format(new Date()));
+        userService.userRegister(user);
+        response.setStatus(302);
+        response.setHeader("location",request.getContextPath());
+    }
 }
