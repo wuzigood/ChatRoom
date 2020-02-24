@@ -31,7 +31,7 @@ public class UserController {
     //成功页面,去聊天页面
     @RequestMapping("success")
     public String success(HttpSession session){
-        System.out.println("success:"+session.getAttribute("user"));
+//        System.out.println("success:"+session.getAttribute("user"));
         return "chat";
 
     }
