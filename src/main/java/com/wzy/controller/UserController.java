@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import javax.jws.soap.SOAPBinding;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -27,10 +28,11 @@ public class UserController {
     @Autowired
     private IUserService userService;
 
-    //成功页面
+    //成功页面,去聊天页面
     @RequestMapping("success")
-    public String success(){
-        return "success";
+    public String success(HttpSession session){
+        System.out.println("success:"+session.getAttribute("user"));
+        return "chat";
 
     }
     @RequestMapping("fail")
@@ -40,11 +42,15 @@ public class UserController {
 
     //登录操作
     @RequestMapping(value = "/login",method = RequestMethod.POST)
-    public void login(String username, String password, HttpServletRequest request,HttpServletResponse response){
+    public void login(String username, String password, HttpServletRequest request, HttpServletResponse response, HttpSession session){
         System.out.println("用户名："+username+"\t密码："+password);
         User user = new User(username,password);
         int result = userService.userLogin(user);
         if(result>0){
+            //保存session
+            User userGet = userService.getUserByUserName(user.getUserName());
+            session.setAttribute("user",userGet);
+            //去聊天页面
             response.setStatus(302);
             response.setHeader("location",request.getContextPath()+"/user/success");
         }else{
