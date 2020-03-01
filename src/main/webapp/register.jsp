@@ -86,7 +86,7 @@
             密码：<input id="myPassword" type="text" name="password" /><br/>
             <p id="no_password"></p>
             <input type="submit" value="注册" /><br/>
-            <input type="button" value="返回登录页面" onclick="location.href='http://localhost:8080/easychatroom_war_exploded/index.jsp'"/>
+            <input type="button" value="返回登录页面" onclick="location.href='index.jsp'"/>
         </div>
 
     </form>

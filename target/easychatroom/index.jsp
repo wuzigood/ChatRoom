@@ -6,6 +6,7 @@
   To change this template use File | Settings | File Templates.
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java"  %>
+<%String path = "localhost:8080"+request.getContextPath(); %>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -60,7 +61,7 @@
 <%--        <input type="submit" value="登录"/><br/>--%>
         <div id="buttonBox">
             <input type="submit" value="登录">
-            <input type="button" value="注册" onclick="location.href='http://localhost:8080/easychatroom_war_exploded/register.jsp'" >
+            <input type="button" value="注册" onclick="location.href='register.jsp'" >
         </div>
     </form>
     <p id="errorTip"></p>

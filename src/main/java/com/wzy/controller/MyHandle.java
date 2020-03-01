@@ -43,17 +43,25 @@ public class MyHandle implements WebSocketHandler {
     //连接建立之后的操作，webscoket建立好链接之后的处理函数--连接建立后的准备工作
     @Override
     public void afterConnectionEstablished(WebSocketSession webSocketSession) throws Exception {
+        User loginUser=(User) webSocketSession.getAttributes().get("loginUser");
+        //如果账号之前已经登陆过，就让他下线，然后再重新登录
+        if(USER_SOCKETSESSION_MAP.containsKey(loginUser.getId())){
+            WebSocketSession firstSess = USER_SOCKETSESSION_MAP.get(loginUser.getId());
+            ChatMessage chatMessage =new ChatMessage();
+            chatMessage.setType("again");
+            String json =  JSONObject.toJSON(chatMessage).toString();
+            sendMessageToOne(new TextMessage(json),firstSess);
+            //将用户从表中删去
+            subOnlineCount(firstSess);
+            //返回在线人数信息给前端
+            rPeopleNum();
+
+        }
         //将当前的连接的用户会话放入MAP,key是用户编号
         addOnlineCount(webSocketSession);
-        //在线人的名字字符串
-        String peopleNum = onLineCount();
-        //创建消息对象
-        ChatMessage cm = new ChatMessage();
-        cm.setType("people");
-        cm.setInfo(peopleNum);
-        //将消息对象转换成json
-        String json = JSONArray.toJSON(cm).toString();
-        sendMessageToAll(new TextMessage(json));
+        //返回在线人数信息给前端
+        rPeopleNum();
+
     }
 
     //客户端发送服务器的消息时的处理函数，在这里收到消息之后可以分发消息
@@ -94,8 +102,6 @@ public class MyHandle implements WebSocketHandler {
         }
 
 
-
-
     }
 
     //消息传输过程中出现的异常处理函数
@@ -109,15 +115,8 @@ public class MyHandle implements WebSocketHandler {
         }
         //将用户从表中删去
         subOnlineCount(webSocketSession);
-        //在线人的名字字符串
-        String peopleNum = onLineCount();
-        //创建消息对象
-        ChatMessage cm = new ChatMessage();
-        cm.setType("people");
-        cm.setInfo(peopleNum);
-        //将消息对象转换成json
-        String json = JSONArray.toJSON(cm).toString();
-        sendMessageToAll(new TextMessage(json));
+        //返回在线人数信息给前端
+        rPeopleNum();
     }
 
     //websocket链接关闭的回调
@@ -126,21 +125,43 @@ public class MyHandle implements WebSocketHandler {
         System.out.println("Websocket正常断开:" + webSocketSession.getId() + "已经关闭");
         //将用户从表中删去
         subOnlineCount(webSocketSession);
-        //在线人的名字字符串
-        String peopleNum = onLineCount();
-        //创建消息对象
-        ChatMessage cm = new ChatMessage();
-        cm.setType("people");
-        cm.setInfo(peopleNum);
-        //将消息对象转换成json
-        String json = JSONArray.toJSON(cm).toString();
-        sendMessageToAll(new TextMessage(json));
+        //返回在线人数信息给前端
+        rPeopleNum();
     }
 
     @Override
     public boolean supportsPartialMessages() {
         System.out.println("supportsPartialMessages...");
         return false;
+    }
+
+    //私发消息
+    private void sendMessageToOne(final TextMessage message,WebSocketSession webSocketSession){
+        //获取到所有在线用户的SocketSession对象
+        Set<Entry<Integer, WebSocketSession>> entrySet = USER_SOCKETSESSION_MAP.entrySet();
+        for (Entry<Integer, WebSocketSession> entry : entrySet) {
+            if(webSocketSession.equals(entry.getValue())){
+                //判断连接是否仍然打开的
+                if(webSocketSession.isOpen()){
+                    //开启多线程发送消息（效率高）
+                    new Thread(new Runnable() {
+                        public void run() {
+                            if (webSocketSession.isOpen()) {
+                                try {
+                                    webSocketSession.sendMessage(message);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+
+                            }
+                        }
+
+                    }).start();
+
+                }
+            }
+
+        }
     }
 
     //群发消息
@@ -182,28 +203,48 @@ public class MyHandle implements WebSocketHandler {
         USER_ONLINE.add(loginUser.getUserName());
     }
 
+
+
     //将用户从表中删去
     private static synchronized void subOnlineCount(WebSocketSession webSocketSession) {
         //获取异常的用户的会话中的用户编号
         User loginUser=(User)webSocketSession.getAttributes().get("loginUser");
-        Set<Entry<Integer, WebSocketSession>> entrySet = USER_SOCKETSESSION_MAP.entrySet();
-        //删除在线用户
-        USER_ONLINE.remove(loginUser.getUserName());
-        //并查找出在线用户的WebSocketSession（会话），将其移除（不再对其发消息了。。）
-        for (Entry<Integer, WebSocketSession> entry : entrySet) {
-            if(entry.getKey().equals(loginUser.getId())){
-                //清除在线会话
-                USER_SOCKETSESSION_MAP.remove(entry.getKey());
-                //记录日志：
-                System.out.println("Socket会话已经移除:用户ID" + entry.getKey());
-                break;
+        if(USER_ONLINE.contains(loginUser.getUserName())){
+            //删除在线用户
+            USER_ONLINE.remove(loginUser.getUserName());
+        }
+        if(USER_SOCKETSESSION_MAP.containsKey(loginUser.getId())){
+            Set<Entry<Integer, WebSocketSession>> entrySet = USER_SOCKETSESSION_MAP.entrySet();
+            //并查找出在线用户的WebSocketSession（会话），将其移除（不再对其发消息了。。）
+            for (Entry<Integer, WebSocketSession> entry : entrySet) {
+                if(entry.getKey().equals(loginUser.getId())){
+                    //清除在线会话
+                    USER_SOCKETSESSION_MAP.remove(entry.getKey());
+                    //记录日志：
+                    System.out.println("Socket会话已经移除:用户ID" + entry.getKey());
+                    break;
+                }
             }
         }
+
     }
 
     //将在线人数转成json
     private static String onLineCount(){
         return JSONArray.toJSONString(USER_ONLINE);
+    }
+
+    //返回在线人数信息给前端
+    private void rPeopleNum(){
+        //在线人的名字字符串
+        String peopleNum = onLineCount();
+        //创建消息对象
+        ChatMessage cm = new ChatMessage();
+        cm.setType("people");
+        cm.setInfo(peopleNum);
+        //将消息对象转换成json
+        String json = JSONArray.toJSON(cm).toString();
+        sendMessageToAll(new TextMessage(json));
     }
 
 

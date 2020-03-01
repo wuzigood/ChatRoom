@@ -70,7 +70,11 @@
             websocket.onmessage = function (event) {
                 var message = $.parseJSON(event.data);
                 console.log("WebSocket:收到一条消息",message);
-                if (message.type == "people") {
+                if(message.type == "again"){
+                    websocket = null;
+                    alert("账号在其他地方登陆")
+                }
+                else if (message.type == "people") {
                     $("#chatUserList").empty();
                     //将名称字符串转成对象
                     var obj = eval('(' + message.info + ')');
@@ -119,15 +123,15 @@
      */
     function sendMsg(){
         //对象为空了
-        if(websocket==undefined||websocket==null){
-            //alert('WebSocket connection not established, please connect.');
+        if(!websocket){
+            //alert('WebSocket connection not established, please connect.');websocket==undefined||websocket==null
             alert('您的连接已经丢失，请退出聊天重新进入');
             return;
         }
         //获取用户要发送的消息内容
         var msg=$("#sendText").val();
         console.log(msg);
-        if(msg == ""){
+        if(msg === ""){
             return;
         }else{
             //发送消息的信息
@@ -146,12 +150,12 @@
      * 发送文件
      */
     function sendFile() {
-        // //连接断开
-        // if(!websocket){
-        //     //alert('WebSocket connection not established, please connect.');
-        //     alert('您的连接已经丢失，请退出聊天重新进入');
-        //     return;
-        // }
+        //连接断开
+        if(!websocket){
+            //alert('WebSocket connection not established, please connect.');
+            alert('您的连接已经丢失，请退出聊天重新进入');
+            return;
+        }
         //没有文件
         if(!fileObject || fileObject == "")return;
         var inputElement = $("#fileId");
