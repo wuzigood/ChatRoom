@@ -2,6 +2,7 @@ package com.wzy.javabean;
 
 import java.io.Serializable;
 
+//用户发送的消息
 public class ChatMessage implements Serializable {
 
     //消息的id

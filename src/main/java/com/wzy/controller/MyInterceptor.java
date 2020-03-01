@@ -11,9 +11,7 @@ import org.springframework.web.socket.server.support.HttpSessionHandshakeInterce
 import javax.servlet.http.HttpSession;
 import java.util.Map;
 
-/**
- * 拦截器，就是可以在获取连接之前进行一些操作
- */
+//拦截器，就是可以在获取连接之前进行一些操作
 @Component
 public class MyInterceptor extends HttpSessionHandshakeInterceptor {
     @Override

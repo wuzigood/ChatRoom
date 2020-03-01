@@ -39,6 +39,12 @@
             <span id="filename"></span><br/>
             <button onclick="sendFile()" >上传文件</button>
         </div>
+        <div class="down" id="people">
+            在线名单：
+            <ul id="chatUserList">
+
+            </ul>
+        </div><br/>
     </div>
 
 </body>
@@ -64,7 +70,18 @@
             websocket.onmessage = function (event) {
                 var message = $.parseJSON(event.data);
                 console.log("WebSocket:收到一条消息",message);
-                $("#contentUI").append("<li><b>"+message.fromName+"</b> : <span>"+message.text+"</span></li>");
+                if (message.type == "people") {
+                    $("#chatUserList").empty();
+                    //将名称字符串转成对象
+                    var obj = eval('(' + message.info + ')');
+                    //把在线人数的名字显示出来
+                    $.each(obj,function(i,j){
+                        $("#chatUserList").append("<li>"+j+"</li>");
+                    })
+                }else if(message.type == "word"){
+                    $("#contentUI").append("<li><b>"+message.fromName+"</b> : <span>"+message.text+"</span></li>");
+                }
+
             };
             //通信发生错误时触发,监听异常
             websocket.onerror = function (event) {
@@ -90,6 +107,8 @@
             websocket.close();
             websocket = null;
             alert("已经关闭连接")
+            //清空在线名单
+            $("#chatUserList").empty();
         } else {
             alert("未开启连接")
         }

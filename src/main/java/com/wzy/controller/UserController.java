@@ -45,6 +45,7 @@ public class UserController {
     public void login(String username, String password, HttpServletRequest request, HttpServletResponse response, HttpSession session){
         System.out.println("用户名："+username+"\t密码："+password);
         User user = new User(username,password);
+        //查询数据库是否有该用户
         int result = userService.userLogin(user);
         if(result>0){
             //保存session
