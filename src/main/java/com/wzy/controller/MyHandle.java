@@ -1,19 +1,33 @@
 package com.wzy.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.wzy.javabean.ChatMessage;
 import com.wzy.javabean.User;
+import com.wzy.service.IChatService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-@Component
+//@Component
 public class MyHandle implements WebSocketHandler {
+    //定义全局变量，用于确定传输消息的类型
+    private static final String WORD = "word";
+    private static final String FILE = "file";
 
-    //在线用户的SOCKETsession(存储了所有的通信通道)
+    //用来调用chatService层
+    @Autowired
+    private IChatService chatService;
+
+    //在线用户的SOCKET session(存储了所有的通信通道)
     public static final Map<Integer, WebSocketSession> USER_SOCKETSESSION_MAP;
     //用于存储所有的在线用户
     static {
@@ -39,11 +53,41 @@ public class MyHandle implements WebSocketHandler {
     public void handleMessage(WebSocketSession webSocketSession, WebSocketMessage<?> message) throws Exception {
         //如果消息没有任何内容，则直接返回
         if(message.getPayloadLength()==0)return;
-        //获得输入的字符串
+        //获得前端传过来的json数据，变为json字符串
         String str = message.getPayload().toString();
         System.out.println("消息（可存数据库作为历史记录）:"+str);
-        //群发出去,对用户发送的消息内容进行转义
-        sendMessageToAll(new TextMessage(str));
+        //将json字符串转换成json对象
+        JSONObject jsonObject = JSON.parseObject(str);
+        //获取传过来的消息的类型
+        String type = jsonObject.get("type").toString();
+        Integer uId = Integer.valueOf(jsonObject.get("fromId").toString());
+        String uName = jsonObject.get("fromName").toString();
+        String info = jsonObject.get("text").toString();
+        //发送消息的时间
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        String sentMsgDate = dateFormat.format(new Date());
+
+        //如果是短信消息
+        if(WORD.equals(type)){
+            //将消息保存到数据库
+            ChatMessage chatMessage = new ChatMessage(uId,uName,sentMsgDate,info);
+            chatMessage.setType(type);
+            //调用service层方法存
+            System.out.println("保存message成功:"+chatMessage.getInfo());
+            chatService.saveChatMessage(chatMessage);
+//            System.out.println(chatMessage);
+            //群发出去,对用户发送的消息内容进行转义
+            sendMessageToAll(new TextMessage(str));
+        }
+        //如果发送过来的是文件
+        else if(FILE.equals(type)){
+            //文件处理
+            System.out.println("文件上传成功");
+        }
+
+
+
+
     }
 
     /**
@@ -131,4 +175,6 @@ public class MyHandle implements WebSocketHandler {
             }
         }
     }
+
+
 }

@@ -8,6 +8,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java"  %>
 <html>
 <head>
+    <meta charset="UTF-8">
     <%
         pageContext.setAttribute("APP_PATH", request.getContextPath());
     %>
@@ -42,8 +43,12 @@
     </script>
 </head>
 <body>
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <h3 class="col-md-6 col-md-offset-3">登录页面</h3>
+        </div>
+    </div>
 
-    <h3>登录页面</h3>
     <form action="user/login" method="post" name="loginForm" onsubmit="return validateForm()">
         <div>
             账号：<input id="myUsername" type="text" name="username"/>

@@ -65,20 +65,6 @@
         }
 
     </script>
-</head>
-<body>
-    <h3>注册页面</h3><br/>
-    <form action="/easychatroom_war_exploded/user/register" method="post" onsubmit="return validateForm()">
-        <div>
-            账号：<input id="myUsername" type="text" name="username" /><br/>
-            <p id="no_username"></p>
-            密码：<input id="myPassword" type="text" name="password" /><br/>
-            <p id="no_password"></p>
-            <input type="submit" value="注册" /><br/>
-        </div>
-
-    </form>
-    <p id="errorTip"></p>
     <script>
         //取出传回来的参数error并与yes比较
         var isErr ='<%=request.getParameter("error")%>';
@@ -90,6 +76,22 @@
             }
         }
     </script>
+</head>
+<body>
+    <h3>注册页面</h3><br/>
+    <form action="/easychatroom_war_exploded/user/register" method="post" onsubmit="return validateForm()">
+        <div>
+            账号：<input id="myUsername" type="text" name="username" /><br/>
+            <p id="no_username"></p>
+            密码：<input id="myPassword" type="text" name="password" /><br/>
+            <p id="no_password"></p>
+            <input type="submit" value="注册" /><br/>
+            <input type="button" value="返回登录页面" onclick="location.href='http://localhost:8080/easychatroom_war_exploded/index.jsp'"/>
+        </div>
+
+    </form>
+    <p id="errorTip"></p>
+
 
 </body>
 

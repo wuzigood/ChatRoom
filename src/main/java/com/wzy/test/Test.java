@@ -2,7 +2,9 @@ package com.wzy.test;
 
 import com.sun.javaws.IconUtil;
 import com.wzy.dao.IUserDao;
+import com.wzy.javabean.ChatMessage;
 import com.wzy.javabean.User;
+import com.wzy.service.IChatService;
 import com.wzy.service.IUserService;
 import com.wzy.service.impl.UserServiceImpl;
 import org.apache.ibatis.session.SqlSession;
@@ -55,8 +57,20 @@ public class Test {
 //        System.out.println(us.userLogin(user1));
 //        System.out.println(us.userLogin(user3));
 
-        us.userRegister(user1);
+//        us.userRegister(user1);
 
+
+    }
+
+    @org.junit.Test
+    public void run2(){
+        ChatMessage cm = new ChatMessage();
+        cm.setType("testD");
+        cm.setInfo("这是一个test");
+        ApplicationContext ac = new ClassPathXmlApplicationContext("classpath:applicationContext.xml");
+        // 获取对象
+        IChatService cs = (IChatService) ac.getBean("chatService");
+        cs.saveChatMessage(cm);
 
     }
 }
