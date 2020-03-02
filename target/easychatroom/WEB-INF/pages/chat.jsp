@@ -56,6 +56,10 @@
     var websocket = null;
     //文件对象
     var fileObject;
+
+    var paragraph = 5120;//文件分块上传大小5kb
+    var startSize, endSize = 0;//文件的起始大小和文件的结束大小
+
     /**
      * 打开链接
      */
@@ -70,11 +74,11 @@
             websocket.onmessage = function (event) {
                 var message = $.parseJSON(event.data);
                 console.log("WebSocket:收到一条消息",message);
-                if(message.type == "again"){
+                if(message.type === "again"){
                     websocket = null;
                     alert("账号在其他地方登陆")
                 }
-                else if (message.type == "people") {
+                else if (message.type === "people") {
                     $("#chatUserList").empty();
                     //将名称字符串转成对象
                     var obj = eval('(' + message.info + ')');
@@ -82,10 +86,42 @@
                     $.each(obj,function(i,j){
                         $("#chatUserList").append("<li>"+j+"</li>");
                     })
-                }else if(message.type == "word"){
+                }else if(message.type === "word"){
                     $("#contentUI").append("<li><b>"+message.fromName+"</b> : <span>"+message.text+"</span></li>");
+                }else if(message.type === "ok"){
+                    // websocket.send(fileObject);
+                    if(endSize < fileObject.size){
+                        startSize = endSize;
+                        endSize += paragraph;
+                        //选定已有数组中的元素
+                        console.log(startSize,endSize);
+                        var blob = fileObject.slice(startSize, endSize);
+                        //一切正常，开始传输文件,创建文件读取器
+                        var reader = new FileReader();
+                        //以二进制形式读取blob
+                        reader.readAsArrayBuffer(blob);
+                        //读取完毕后响应
+                        reader.onload = function loader(ev) {
+                            // console.log(ev.target.result);//这个和下面那个是一样的，就是不知道为什么编译器报错
+                            // console.log(this.result);
+                            //获取读取到的结果
+                            var arrayBuffer = ev.target.result;
+                            //发送二进制
+                            websocket.send(arrayBuffer);
+                        }
+                    }else{
+                        alert("上传成功");
+                        var data={};
+                        data["fromId"]=fromId;
+                        data["fromName"]=fromName;
+                        data["text"]=fileObject.name;//代表文件名
+                        data["type"]="over";
+                        //发送 该文件上传成功的 消息
+                        websocket.send(JSON.stringify(data));
+                    }
+                }else if(message.type === "link"){
+                    $("#contentUI").append("<li><b>"+message.uName+"</b> : <span>"+message.info+"</span></li>");
                 }
-
             };
             //通信发生错误时触发,监听异常
             websocket.onerror = function (event) {
@@ -110,7 +146,7 @@
         if (websocket != null) {
             websocket.close();
             websocket = null;
-            alert("已经关闭连接")
+            // alert("已经关闭连接")
             //清空在线名单
             $("#chatUserList").empty();
         } else {
@@ -138,7 +174,7 @@
             var data={};
             data["fromId"]=fromId;
             data["fromName"]=fromName;
-            data["text"]=msg;
+            data["text"]=msg;//代表消息内容
             data["type"]="word";
             //将data转化为字符串并发送消息给MyHandle
             websocket.send(JSON.stringify(data));
@@ -151,35 +187,33 @@
      */
     function sendFile() {
         //连接断开
-        if(!websocket){
-            //alert('WebSocket connection not established, please connect.');
-            alert('您的连接已经丢失，请退出聊天重新进入');
-            return;
-        }
+        // if(!websocket){
+        //     //alert('WebSocket connection not established, please connect.');
+        //     alert('您的连接已经丢失，请退出聊天重新进入');
+        //     return;
+        // }
         //没有文件
-        if(!fileObject || fileObject == "")return;
-        var inputElement = $("#fileId");
-        //一切正常，开始传输文件,创建文件读取器
-        var reader = new FileReader();
-        //以二进制形式读取文件
-        reader.readAsArrayBuffer(fileObject);
-        //读取完毕后响应
-        reader.onload = function loader(ev) {
-            // console.log(ev.target.result);//这个和下面那个是一样的，就是不知道为什么编译器报错
-            // console.log(this.result);
-            var data={};
-            data["fromId"]=fromId;
-            data["fromName"]=fromName;
-            data["fileName"]=fileObject.name;
-            data["text"]=this.result;
-            data["type"]="file";
-            //发送消息
-            websocket.send(JSON.stringify(data));
-            //重置<input type="file">的值
-            inputElement.val("");
-            //清空名字
-            $("#filename").html("");
-        }
+        if(!fileObject || fileObject == "")
+            return;
+        // var inputElement = $("#fileId");
+        //获取文件对象
+        // var fileData = fileObject;
+
+        var data={};
+        data["fromId"]=fromId;
+        data["fromName"]=fromName;
+        data["text"]=fileObject.name;//代表文件名
+        data["type"]="file";
+        //发送 准备发文件的 消息
+        websocket.send(JSON.stringify(data));
+
+
+
+        // //重置<input type="file">的值
+        // inputElement.val("");
+        // //清空名字
+        // $("#filename").html("");
+
 
 
     }

@@ -6,11 +6,16 @@ import com.alibaba.fastjson.JSONObject;
 import com.wzy.javabean.ChatMessage;
 import com.wzy.javabean.User;
 import com.wzy.service.IChatService;
+import com.wzy.service.ISaveFileService;
+import com.wzy.service.impl.SaveFileServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
@@ -20,12 +25,22 @@ public class MyHandle implements WebSocketHandler {
     //定义全局变量，用于确定传输消息的类型
     private static final String WORD = "word";
     private static final String FILE = "file";
-
+    private static final String OVER = "over";
 
 
     //用来调用chatService层
     @Autowired
     private IChatService chatService;
+
+    //注入文件保存的接口
+    private static ISaveFileService saveFile;
+    @Autowired
+    public void setSaveFile(ISaveFileService saveFile){
+        MyHandle.saveFile = saveFile;
+    }
+
+    //保证文件路径和对象的唯一性
+    private HashMap docUrl;
 
 
 
@@ -69,37 +84,100 @@ public class MyHandle implements WebSocketHandler {
     public void handleMessage(WebSocketSession webSocketSession, WebSocketMessage<?> message) throws Exception {
         //如果消息没有任何内容，则直接返回
         if(message.getPayloadLength()==0)return;
-        //获得前端传过来的json数据，变为json字符串
-        String str = message.getPayload().toString();
-        System.out.println("消息（可存数据库作为历史记录）:"+str);
-        //将json字符串转换成json对象
-        JSONObject jsonObject = JSON.parseObject(str);
-        //获取传过来的消息的类型
-        String type = jsonObject.get("type").toString();
-        Integer uId = Integer.valueOf(jsonObject.get("fromId").toString());
-        String uName = jsonObject.get("fromName").toString();
-        String info = jsonObject.get("text").toString();
-        //发送消息的时间
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-        String sentMsgDate = dateFormat.format(new Date());
+        //如果是text消息
+        if(message instanceof TextMessage){
+            //获得前端传过来的json数据，变为json字符串
+            String str = message.getPayload().toString();
+            System.out.println("消息（可存数据库作为历史记录）:"+str);
+            //将json字符串转换成json对象
+            JSONObject jsonObject = JSON.parseObject(str);
+            //获取传过来的消息的类型
+            String type = jsonObject.get("type").toString();
+            Integer uId = Integer.valueOf(jsonObject.get("fromId").toString());
+            String uName = jsonObject.get("fromName").toString();
+            String info = jsonObject.get("text").toString();
+            //发送消息的时间
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            String sentMsgDate = dateFormat.format(new Date());
 
-        //如果是短信消息
-        if(WORD.equals(type)){
-            //将消息保存到数据库
-            ChatMessage chatMessage = new ChatMessage(uId,uName,sentMsgDate,info);
-            chatMessage.setType(type);
-            //调用service层方法存
-            System.out.println("保存message成功:"+chatMessage.getInfo());
-            //打开注释可以将聊天记录保存到数据库中
-//            chatService.saveChatMessage(chatMessage);
-            //群发出去,对用户发送的消息内容进行转义
-            sendMessageToAll(new TextMessage(str));
+            //如果是短信消息
+            if(WORD.equals(type)){
+                //将消息保存到数据库
+                ChatMessage chatMessage = new ChatMessage(uId,uName,sentMsgDate,info);
+                chatMessage.setType(type);
+                //调用service层方法存
+                System.out.println("保存message成功:"+chatMessage.getInfo());
+                //打开注释可以将聊天记录保存到数据库中
+//                chatService.saveChatMessage(chatMessage);
+                //群发出去,对用户发送的消息内容进行转义
+                sendMessageToAll(new TextMessage(str));
+            }
+            //如果发送过来的是准备发文件的消息（这个其实也是text消息）
+            else if(FILE.equals(type)){
+//                //当前项目下路径
+//                File file = new File("");
+//                String filePath = file.getCanonicalPath();
+//                System.out.println(filePath);
+//
+//                //当前项目下xml文件夹
+//                File file1 = new File("");
+//                String filePath1 = file1.getCanonicalPath()+File.separator+"xml\\";
+//                System.out.println(filePath1);
+//
+//                //获取类加载的根路径
+//                File file3 = new File(this.getClass().getResource("/").getPath());
+//                System.out.println(file3);
+//
+//                //获取当前类的所在工程路径
+//                File file4 = new File(this.getClass().getResource("").getPath());
+//                System.out.println(file4);
+//
+//                //获取所有的类路径 包括jar包的路径
+//                System.out.println(System.getProperty("java.class.path"));
+
+
+                //文件处理
+                //获取文件保存路径
+                Map<String,Object> map = saveFile.docPath(info);
+                docUrl = (HashMap) map;
+                ChatMessage chatMessage =new ChatMessage();
+                chatMessage.setType("ok");
+                String json =  JSONObject.toJSON(chatMessage).toString();
+                sendMessageToOne(new TextMessage(json),webSocketSession);
+                System.out.println("可以开始发文件了："+info);
+            }
+            //文件传输完成
+            else if(OVER.equals(type)){
+                //返回一个下载地址给所有人
+                String path = (String) docUrl.get("downloadPath");
+                ChatMessage chatMessage =new ChatMessage();
+                chatMessage.setType("link");
+                chatMessage.setInfo(path);
+                chatMessage.setuName(uName);
+                String json =  JSONObject.toJSON(chatMessage).toString();
+                sendMessageToAll(new TextMessage(json));
+            }
+        }else if(message instanceof BinaryMessage){
+            //读写的开始位置为pos，读写的最大容量为lim,缓冲区的最大容量为cap
+//            System.out.println(message.getPayload().toString());
+//            System.out.println(message.getPayload().getClass());
+//            System.out.println(message.getPayloadLength());
+            byte[] b = new byte[message.getPayloadLength()];
+            ByteBuffer bb = (ByteBuffer) message.getPayload();
+//            System.out.println(bb.toString());
+            bb.get(b);
+
+////            byte[] b = message.getPayload().toString();
+////            System.out.println("byte数组："+b);
+            saveFile.saveFileFromByte(b,docUrl);
+            ChatMessage chatMessage =new ChatMessage();
+            chatMessage.setType("ok");
+            String json =  JSONObject.toJSON(chatMessage).toString();
+            sendMessageToOne(new TextMessage(json),webSocketSession);
+
+            System.out.println("发了二进制文件过来");
         }
-        //如果发送过来的是文件
-        else if(FILE.equals(type)){
-            //文件处理
-            System.out.println("文件上传成功");
-        }
+
 
 
     }
@@ -140,6 +218,7 @@ public class MyHandle implements WebSocketHandler {
         //获取到所有在线用户的SocketSession对象
         Set<Entry<Integer, WebSocketSession>> entrySet = USER_SOCKETSESSION_MAP.entrySet();
         for (Entry<Integer, WebSocketSession> entry : entrySet) {
+            //如果是这个用户
             if(webSocketSession.equals(entry.getValue())){
                 //判断连接是否仍然打开的
                 if(webSocketSession.isOpen()){
