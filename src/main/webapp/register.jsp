@@ -78,21 +78,59 @@
     </script>
 </head>
 <body>
-    <h3>注册页面</h3><br/>
-    <form action="/easychatroom_war_exploded/user/register" method="post" onsubmit="return validateForm()">
-        <div>
-            账号：<input id="myUsername" type="text" name="username" /><br/>
-            <p id="no_username"></p>
-            密码：<input id="myPassword" type="text" name="password" /><br/>
-            <p id="no_password"></p>
-            <input type="submit" value="注册" /><br/>
-            <input type="button" value="返回登录页面" onclick="location.href='index.jsp'"/>
+    <div class="row" style="margin-top: 50px">
+        <div class="col-md-6 col-md-offset-5">
+            <h2 class="col-md-12">注册页面</h2>
         </div>
+        <div class="col-md-1"></div>
+    </div>
+    <div class="row">
+        <div class="col-md-5 col-md-offset-3">
+            <form class="form-horizontal" action="/easychatroom_war_exploded/user/register" method="post" onsubmit="return validateForm()">
+                <div class="form-group">
+                    <label for="myUsername" class="col-sm-2 control-label">账号</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="myUsername" name="username" placeholder="Username">
+                        <label class="label label-danger" id="no_username"></label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="myPassword" class="col-sm-2 control-label">密码</label>
+                    <div class="col-sm-10">
+                        <input type="password" name="password" class="form-control" name="password" id="myPassword" placeholder="Password">
+                        <span class="label label-danger" id="no_password"></span>
+                    </div>
+                </div>
 
-    </form>
-    <p id="errorTip"></p>
+                <div class="col-md-4 col-md-offset-5" id="buttonBox">
+                    <div class="col-md-4">
+                        <input class="btn btn-success" type="submit" value="注册">
+                    </div>
+                    <div class="col-md-4">
+                        <input class="btn btn-default" type="button" value="返回登录页面" onclick="location.href='index.jsp'" >
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row" style="margin-top: 20px">
+        <div class="col-md-4 col-md-offset-5">
+            <p class="label label-danger" id="errorTip"></p>
+        </div>
+    </div>
+<%--    <h3>注册页面</h3><br/>--%>
+<%--    <form action="/easychatroom_war_exploded/user/register" method="post" onsubmit="return validateForm()">--%>
+<%--        <div>--%>
+<%--            账号：<input id="myUsername" type="text" name="username" /><br/>--%>
+<%--            <p id="no_username"></p>--%>
+<%--            密码：<input id="myPassword" type="text" name="password" /><br/>--%>
+<%--            <p id="no_password"></p>--%>
+<%--            <input type="submit" value="注册" /><br/>--%>
+<%--            <input type="button" value="返回登录页面" onclick="location.href='index.jsp'"/>--%>
+<%--        </div>--%>
 
-
+<%--    </form>--%>
+<%--    <p id="errorTip"></p>--%>
 </body>
 
 
