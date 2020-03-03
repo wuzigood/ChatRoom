@@ -17,6 +17,8 @@ public class ChatMessage implements Serializable {
     private String type;
     //发送消息的内容
     private String info;
+    //消息的说明
+    private String desp;
 
     public Integer getId() {
         return id;
@@ -66,6 +68,14 @@ public class ChatMessage implements Serializable {
         this.info = info;
     }
 
+    public String getDesp() {
+        return desp;
+    }
+
+    public void setDesp(String desp) {
+        this.desp = desp;
+    }
+
     public ChatMessage() {
     }
 
@@ -76,7 +86,6 @@ public class ChatMessage implements Serializable {
         this.info = info;
     }
 
-
     @Override
     public String toString() {
         return "ChatMessage{" +
@@ -86,6 +95,7 @@ public class ChatMessage implements Serializable {
                 ", sendTime='" + sendTime + '\'' +
                 ", type='" + type + '\'' +
                 ", info='" + info + '\'' +
+                ", desp='" + desp + '\'' +
                 '}';
     }
 }

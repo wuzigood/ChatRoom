@@ -12,13 +12,13 @@
     <title>History</title>
 </head>
 <body>
-${requestScope.list}<br/>
+<h3>所有历史文件</h3><br/>
 <c:forEach items="${requestScope.list}" var="file">
     <tbody>
     <tr>
         <%String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort();%>
         <th><a href="<%=basePath%>/${file.info}" target='_blank' download='${file.info}'>
-                ${file.uName}-${file.sendTime}-${file.info}</a>
+                ${file.uName}-${file.sendTime}-${file.desp}</a><br/>
         </th>
     </tr>
     </tbody>

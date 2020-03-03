@@ -81,8 +81,9 @@ public class FileController {
                 fMessage.setType("file");
                 fMessage.setSendTime(sentMsgDate);
                 fMessage.setInfo("images/"+filename);
+                fMessage.setDesp(description);
                 //保存文件
-//                chatService.saveChatMessage(fMessage);
+                chatService.saveChatMessage(fMessage);
                 System.out.println("保存文件成功");
             } catch (IOException e) {
                 e.printStackTrace();

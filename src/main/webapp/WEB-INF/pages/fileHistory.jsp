@@ -18,7 +18,7 @@
     <tr>
         <%String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort();%>
         <th><a href="<%=basePath%>/${file.info}" target='_blank' download='${file.info}'>
-                ${file.uName}-${file.sendTime}-${file.info}</a>
+                ${file.uName}-${file.sendTime}-${file.desp}</a><br/>
         </th>
     </tr>
     </tbody>

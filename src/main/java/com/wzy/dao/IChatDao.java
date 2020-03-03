@@ -26,7 +26,7 @@ import java.util.List;
 public interface IChatDao {
 
     //保存聊天记录
-    @Insert("insert into chat(uid,uName,sendTime,type,info) values(#{uId},#{uName},#{sendTime},#{type},#{info});")
+    @Insert("insert into chat(uid,uName,sendTime,type,info,desp) values(#{uId},#{uName},#{sendTime},#{type},#{info},#{desp});")
     void saveChatMessage(ChatMessage chatMessage);
 
     @Select("select * from chat where type = 'word'")

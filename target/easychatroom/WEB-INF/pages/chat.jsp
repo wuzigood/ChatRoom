@@ -49,16 +49,16 @@
         <a href="../file/fileDownload" target='_blank'>历史</a><br/>
         <input type="button" value="发送异步请求" onclick="fun();">
         <form  id="tf"  enctype="multipart/form-data" >
-            <input type="text" name="fromName" id="uName" value="用户名" onfocus=this.blur()>
-            <input type="text" name="fromId" id="uId" value="用户Id" onfocus=this.blur()>
+            用户名：<input type="text" name="fromName" id="uName" value="用户名" onfocus=this.blur()><br/>
+            用户ID：<input type="text" name="fromId" id="uId" value="用户Id" onfocus=this.blur()><br/>
             <table>
                 <tr>
                     <td>文件描述:</td>
-                    <td><input type="text" name="description"></td>
+                    <td><input type="text" name="description" id="filedesp"></td>
                 </tr>
                 <tr>
                     <td>请选择文件:</td>
-                    <td><input type="file" name="upload"></td>
+                    <td><input type="file" name="upload" id="fileId"></td>
                 </tr>
                 <tr>
                     <td><input type="button" value="上传" onclick="test()"></td>
@@ -83,6 +83,10 @@
                     contentType:false,
                     success:function(data){
                             alert("上传成功");
+                        //重置<input type="file">的值
+                        $("#fileId").val("");
+                        //清空名字
+                        $("#filedesp").html("");
                     }
                 });
             }
