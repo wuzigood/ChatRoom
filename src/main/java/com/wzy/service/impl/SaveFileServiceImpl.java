@@ -12,6 +12,7 @@ import java.util.UUID;
 
 @Service("saveFileService")
 public class SaveFileServiceImpl implements ISaveFileService{
+
     @Override
     public Map<String, Object> docPath(String fileName) {
         HashMap<String, Object> map = new HashMap<>();
@@ -19,8 +20,11 @@ public class SaveFileServiceImpl implements ISaveFileService{
         Date date = new Date();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
         String docUrl = simpleDateFormat.format(date);
-        //文件保存地址
-        String path = "/chatroomupfile/images/" + docUrl;
+
+        //获取当前类加载的路径
+//        this.getClass().getResource("/").getPath();
+        //文件保存地址"/chatroomupfile/images/"+ docUrl
+        String path = "/chatroomupfile/images/" ;
 
         // 把文件的名称设置唯一值，uuid
         String uuid = UUID.randomUUID().toString().replace("-", "");
@@ -37,7 +41,7 @@ public class SaveFileServiceImpl implements ISaveFileService{
         map.put("dest", dest);
         //文件的路径
         map.put("path", path+"/" + newFileName);
-        map.put("downloadPath","/"+docUrl+"/"+newFileName);
+        map.put("downloadPath","/"+newFileName);//+docUrl+"/"
         return map;
     }
 

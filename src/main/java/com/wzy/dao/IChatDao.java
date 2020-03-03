@@ -2,7 +2,10 @@ package com.wzy.dao;
 
 import com.wzy.javabean.ChatMessage;
 import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * Dao层操作chat表
@@ -25,5 +28,11 @@ public interface IChatDao {
     //保存聊天记录
     @Insert("insert into chat(uid,uName,sendTime,type,info) values(#{uId},#{uName},#{sendTime},#{type},#{info});")
     void saveChatMessage(ChatMessage chatMessage);
+
+    @Select("select * from chat where type = 'word'")
+    List<ChatMessage> findAllWord();
+
+    @Select("select * from chat where type = 'file'")
+    List<ChatMessage> findAllFile();
 
 }

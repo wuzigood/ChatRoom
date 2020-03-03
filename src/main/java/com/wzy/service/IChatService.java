@@ -8,4 +8,8 @@ public interface IChatService {
     //将消息添加到数据库
     void saveChatMessage(ChatMessage chatMessage);
 
+    List<ChatMessage> findAllWord();
+
+    List<ChatMessage> findAllFile();
+
 }

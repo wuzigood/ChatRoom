@@ -10,6 +10,7 @@
 <%String path = "localhost:8080"+request.getContextPath(); %>
 <html>
 <head>
+    <script src=”http://html5shiv.googlecode.com/svn/trunk/html5.js”></script>
     <%
         pageContext.setAttribute("APP_PATH", request.getContextPath());
     %>
@@ -34,21 +35,85 @@
             <button onclick="closeConnection()">断开连接</button>
 
         </div>
-        <div class="form-group"></br>
-            选择文件:<input type="file" name="" onchange="fileOnchange()" id="fileId">
-            <span id="filename"></span><br/>
-            <button onclick="sendFile()" >上传文件</button>
-        </div>
+<%--        <div class="form-group"></br>--%>
+<%--            选择文件:<input type="file" name="" onchange="fileOnchange()" id="fileId">--%>
+<%--            <span id="filename"></span><br/>--%>
+<%--            <button onclick="sendFile()" >上传文件</button>--%>
+<%--        </div>--%>
         <div class="down" id="people">
             在线名单：
             <ul id="chatUserList">
 
             </ul>
         </div><br/>
+        <a href="../file/fileDownload" target='_blank'>历史</a><br/>
+        <input type="button" value="发送异步请求" onclick="fun();">
+        <form  id="tf"  enctype="multipart/form-data" >
+            <input type="text" name="fromName" id="uName" value="用户名" onfocus=this.blur()>
+            <input type="text" name="fromId" id="uId" value="用户Id" onfocus=this.blur()>
+            <table>
+                <tr>
+                    <td>文件描述:</td>
+                    <td><input type="text" name="description"></td>
+                </tr>
+                <tr>
+                    <td>请选择文件:</td>
+                    <td><input type="file" name="upload"></td>
+                </tr>
+                <tr>
+                    <td><input type="button" value="上传" onclick="test()"></td>
+                </tr>
+            </table>
+        </form>
+
+        <script>
+            //发送者的id和名字
+            var fromId='${sessionScope.user.id}';
+            var fromName='${sessionScope.user.userName}';
+            $("#uName").val(fromName);
+            $("#uId").val(fromId);
+            function test(){
+                var data = {};//一个空的对象
+                var form = new FormData($('#tf')[0]);
+                $.ajax({
+                    url:"../file/fileUpload",
+                    type:"POST",
+                    data:new FormData($("#tf")[0]),
+                    processData:false,
+                    contentType:false,
+                    success:function(data){
+                            alert("上传成功");
+                    }
+                });
+            }
+
+            //定义方法
+            function  fun() {
+                //使用$.ajax()发送异步请求
+                $.ajax({
+                    url:"../file/fileDownload" , // 请求路径
+                    contentType:"application/json;charset=UTF-8",
+                    type:"POST" , //请求方式
+                    // data: "username=jack&age=23",//请求参数
+                    data:'{"username":"jack","age":23}',
+                    success:function (data) {
+                        alert(data);
+                    },//响应成功后的回调函数
+                    error:function () {
+                        alert("出错啦...")
+                    },//表示如果请求响应出现错误，会执行的回调函数
+
+                    dataType:"text"//设置接受到的响应数据的格式
+                });
+            }
+
+        </script>
     </div>
 
 </body>
 <script>
+    //下载文件地址
+    var downloadPath = "localhost:8080/images";
     //发送者的id和名字
     var fromId='${sessionScope.user.id}';
     var fromName='${sessionScope.user.userName}';
@@ -118,9 +183,15 @@
                         data["type"]="over";
                         //发送 该文件上传成功的 消息
                         websocket.send(JSON.stringify(data));
+                        //重置<input type="file">的值
+                        $("#fileId").val("");
+                        //清空名字
+                        $("#filename").html("");
                     }
                 }else if(message.type === "link"){
-                    $("#contentUI").append("<li><b>"+message.uName+"</b> : <span>"+message.info+"</span></li>");
+                    $("#contentUI").append("<li><b>"+message.uName+"</b> : <a href='' id='downUrl' download='图片' target='_blank'>"+message.info+"</a></li>");
+                    $("#downUrl").attr("href",downloadPath+message.info);
+                    $("#downUrl").attr("download",message.info);
                 }
             };
             //通信发生错误时触发,监听异常
@@ -187,11 +258,11 @@
      */
     function sendFile() {
         //连接断开
-        // if(!websocket){
-        //     //alert('WebSocket connection not established, please connect.');
-        //     alert('您的连接已经丢失，请退出聊天重新进入');
-        //     return;
-        // }
+        if(!websocket){
+            //alert('WebSocket connection not established, please connect.');
+            alert('您的连接已经丢失，请退出聊天重新进入');
+            return;
+        }
         //没有文件
         if(!fileObject || fileObject == "")
             return;
