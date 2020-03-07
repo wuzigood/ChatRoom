@@ -39,20 +39,15 @@ public class FileController {
         return mv;
     }
     @RequestMapping("/test")
-    public void test(){
-        List<ChatMessage> list = chatService.findAllWord();
-        for(ChatMessage cm : list){
-            System.out.println(cm);
-        }
-        System.out.println("=========");
-        list = chatService.findAllFile();
-        for(ChatMessage cm : list){
-            System.out.println(cm);
-        }
+    public void test(String description,MultipartFile upload,String fromId,String fromName){
+        System.out.println(description);
+        System.out.println(fromName);
+        System.out.println(fromId);
+        System.out.println(upload);
     }
-
+//HttpServletRequest request,@RequestParam("description") String description,@RequestParam("upload")MultipartFile upload,@RequestParam("fromName")String fromName,@RequestParam("fromId")Integer fromId
     @RequestMapping("/fileUpload")
-    public @ResponseBody String fileUpload(HttpServletRequest request,@RequestParam("description") String description, MultipartFile upload,@RequestParam("fromName")String fromName,@RequestParam("fromId")String fromId)  {
+    public @ResponseBody String fileUpload(String description,MultipartFile upload,String fromId,String fromName)  {
         System.out.println("上传文件的描述："+description);
         if(!upload.isEmpty()){
             // 上传的位置

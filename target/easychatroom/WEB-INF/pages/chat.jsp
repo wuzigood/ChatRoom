@@ -10,12 +10,39 @@
 <%String path = "localhost:8080"+request.getContextPath(); %>
 <html>
 <style>
-    .up{
-        height:300px;
-        background:rgba(0,0,0,0.2);
-        margin-bottom:30px;
+    .greyblock{
+        border-top-right-radius: 5px;
+        border-top-left-radius: 5px;
+        border-bottom-right-radius:5px;
+        border-bottom-left-radius:5px;
+        border-style: solid;
+        border-color: #c0c0c0;
+    }
+    .people{
+        border-top-right-radius: 5px;
+        border-top-left-radius: 5px;
+        border-bottom-right-radius:5px;
+        border-bottom-left-radius:5px;
+        height:700px;
+        border-style: solid;
+        border-color: #c0c0c0;
+        margin-bottom:10px;
         padding:15px;
         overflow:auto;
+        margin-top: 10px;
+    }
+    .up{
+        border-top-right-radius: 5px;
+        border-top-left-radius: 5px;
+        border-bottom-right-radius:5px;
+        border-bottom-left-radius:5px;
+        height:300px;
+        border-style: solid;
+        border-color: #c0c0c0;
+        margin-bottom:10px;
+        padding:15px;
+        overflow:auto;
+        margin-top: 10px;
     }
     .up em{ font-style:normal; background:#FF6600; color:#FFFFFF; padding:3px 5px; margin:0 5px; float:left;}
     .up b{ font-weight:normal; background-color:#333333; padding:2px 5px; color:#f4f4f4; float:left;}
@@ -32,73 +59,89 @@
     <script src="${APP_PATH}/static/js/jquery-3.1.1.js"></script>
     <!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
     <script src="${APP_PATH}/static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
-    <title>欢迎来到聊天室</title>
+    <title>聊天室</title>
 
 </head>
 <body>
-    <div class="row">
-        <div class="col-md-9 col-md-offset-1">
-            <div class="up" id="up">
-                <ul id="contentUI"></ul>
+<div class="row">
+    <div class="col-md-1">
+        <div id="people" class="people">
+            <p class="text-danger" style="text-align: center">在线名单</p>
+            <ul class="list-group" id="chatUserList">
+            </ul>
+        </div>
+    </div>
+    <div class="col-md-11">
+        <div class="row">
+            <div class="col-md-12" >
+                <div class="up" id="up">
+                    <ul id="contentUI">
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="greyblock" style="height:390px;">
+            <div class="row">
+                <div class="col-md-12" style="margin-top: 10px;">
+                    <div class="col-md-12">
+                        <textarea class="form-control" rows="10" id="sendText"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" style="margin-top: 10px">
+                <div class="col-md-8">
+                    <form  id="tf"  enctype="multipart/form-data" >
+                        <div class="col-md-4">
+                            用户名：<input class="form-control" type="text" name="fromName" id="uName" value="用户名" disabled><br/>
+                            用户ID：<input class="form-control" type="text" name="fromId" id="uId" value="用户Id" disabled><br/>
+                        </div>
+                        <div class="col-md-8">
+                            <table class="table">
+                                <tr>
+                                    <td>文件描述:</td>
+                                    <td><input class="form-control" type="text" name="description" id="filedesp"></td>
+                                </tr>
+                                <tr>
+                                    <td>请选择文件:</td>
+                                    <td><input type="file" name="upload" id="fileId"></td>
+                                </tr>
+                                <tr>
+                                    <td><input class="btn btn-default" type="button" value="上传" onclick="newSendFile()"></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </form>
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <button id="sendBtn" class="btn btn-success" onclick="sendMsg()">发送消息</button>
+                    <button class="btn btn-info" onclick="getConnection()">打开连接</button>
+                    <button class="btn btn-danger" onclick="closeConnection()">断开连接</button>
+                    <a class="btn btn-default active" role="button" href="../file/fileDownload" target='_blank'>历史文件</a><br/>
+                </div>
+                <%--        <div class="form-group"></br>--%>
+                <%--            选择文件:<input type="file" name="" onchange="fileOnchange()" id="fileId">--%>
+                <%--            <span id="filename"></span><br/>--%>
+                <%--            <button onclick="sendFile()" >上传文件</button>--%>
+                <%--        </div>--%>
+
+
+
+                <%--        <input type="button" value="发送异步请求" onclick="fun();">--%>
+
 
             </div>
         </div>
-        <div class="col-md-1">
-            <div id="people">
-                在线名单：
-                <ul class="list-group" id="chatUserList">
-                </ul>
-            </div>
-        </div>
-
 
     </div>
-    <div class="row">
-        <div class="col-md-10 col-md-offset-1">
-            <textarea class="form-control" rows="3" id="sendText"></textarea>
-        </div>
-    </div>
-
-    <div>
-
-        <div>
-            <div>
-
-                <button id="sendBtn" class="btn btn-success" onclick="sendMsg()">发送消息</button>
-                <button class="btn btn-info" onclick="getConnection()">打开连接</button>
-                <button class="btn btn-danger" onclick="closeConnection()">断开连接</button>
-
-            </div>
-            <%--        <div class="form-group"></br>--%>
-            <%--            选择文件:<input type="file" name="" onchange="fileOnchange()" id="fileId">--%>
-            <%--            <span id="filename"></span><br/>--%>
-            <%--            <button onclick="sendFile()" >上传文件</button>--%>
-            <%--        </div>--%>
-
-            <br/>
-        </div>
+</div>
 
 
-<%--        <input type="button" value="发送异步请求" onclick="fun();">--%>
-        <form  id="tf"  enctype="multipart/form-data" >
-            用户名：<input type="text" name="fromName" id="uName" value="用户名" onfocus=this.blur()><br/>
-            用户ID：<input type="text" name="fromId" id="uId" value="用户Id" onfocus=this.blur()><br/>
-            <table>
-                <tr>
-                    <td>文件描述:</td>
-                    <td><input type="text" name="description" id="filedesp"></td>
-                </tr>
-                <tr>
-                    <td>请选择文件:</td>
-                    <td><input type="file" name="upload" id="fileId"></td>
-                </tr>
-                <tr>
-                    <td><input type="button" value="上传" onclick="newSendFile()"></td>
-                </tr>
-            </table>
-        </form>
-        <a href="../file/fileDownload" target='_blank'>历史文件</a><br/>
-    </div>
+
 
 </body>
 <script>
@@ -108,12 +151,16 @@
     $("#uName").val(fromName);
     $("#uId").val(fromId);
     function newSendFile(){
-        var data = {};//一个空的对象
+        // var data = {};//一个空的对象
         var form = new FormData($('#tf')[0]);
+        form.append("fromName",fromName);
+        form.append("fromId",fromId);
+        console.log(fromId);
+        console.log(fromName);
         $.ajax({
             url:"../file/fileUpload",
             type:"POST",
-            data:new FormData($("#tf")[0]),
+            data:form,
             processData:false,
             contentType:false,
             success:function(data){
@@ -121,31 +168,41 @@
                 //重置<input type="file">的值
                 $("#fileId").val("");
                 //清空名字
-                $("#filedesp").html("");
+                $("#filedesp").val("");
+                // $("#contentUI").append("<li><b>"+fromName+"</b><span>"+data+"</span></li>");
             }
         });
+        //发送消息的信息
+        var data={};
+        data["fromId"]=fromId;
+        data["fromName"]=fromName;
+        data["text"]="=======上传了一个文件======";//代表消息内容
+        data["type"]="word";
+        //将data转化为字符串并发送消息给MyHandle
+        websocket.send(JSON.stringify(data));
         scrollToBottom();
     }
 
     //定义测试的方法
-    function  fun() {
-        //使用$.ajax()发送异步请求
-        $.ajax({
-            url:"../file/fileDownload" , // 请求路径
-            contentType:"application/json;charset=UTF-8",
-            type:"POST" , //请求方式
-            // data: "username=jack&age=23",//请求参数
-            data:'{"username":"jack","age":23}',
-            success:function (data) {
-                alert(data);
-            },//响应成功后的回调函数
-            error:function () {
-                alert("出错啦...")
-            },//表示如果请求响应出现错误，会执行的回调函数
-
-            dataType:"text"//设置接受到的响应数据的格式
-        });
-    }
+    // function  fun() {
+    //     //使用$.ajax()发送异步请求
+    //     $.ajax({
+    //         url:"../file/fileDownload" , // 请求路径
+    //         contentType:"application/json;charset=UTF-8",
+    //         type:"POST" , //请求方式
+    //         // data: "username=jack&age=23",//请求参数
+    //         data:'{"username":"jack","age":23}',
+    //         success:function (data) {
+    //             alert(data);
+    //
+    //         },//响应成功后的回调函数
+    //         error:function () {
+    //             alert("出错啦...")
+    //         },//表示如果请求响应出现错误，会执行的回调函数
+    //
+    //         dataType:"text"//设置接受到的响应数据的格式
+    //     });
+    // }
 
 </script>
 <script>
